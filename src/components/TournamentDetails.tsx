@@ -25,8 +25,8 @@ const TournamentDetails = ({
   const [editableTournament, setEditableTournament] = useState<Tournament>({ ...tournament });
   const [newTeam, setNewTeam] = useState<Team>({ t_id: 0, name: '', description: '' });
   const [editTeam, setEditTeam] = useState<Team | null>(null);
-  const [structures, setStructures] = useState<{ id: number; name: string }[]>([]);
-  const [statuses, setStatuses] = useState<{ id: number; name: string }[]>([]);
+  const [structures, setStructures] = useState<{ key: number; value: string }[]>([]);
+  const [statuses, setStatuses] = useState<{ key: number; value: string }[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const [teamErrors, setTeamErrors] = useState<string[]>([]);
 
@@ -34,6 +34,7 @@ const TournamentDetails = ({
     const fetchData = async () => {
       const fetchedStructures = await fetchTournamentStructures();
       const fetchedStatuses = await fetchTournamentStatuses();
+      console.log("fetchedStatuses", fetchedStatuses)
       setStructures(fetchedStructures);
       setStatuses(fetchedStatuses);
     };
@@ -183,7 +184,7 @@ const TournamentDetails = ({
             >
               <option value="">Select a structure</option>
               {structures.map((structure) => (
-                <option key={structure.id} value={structure.id}>{structure.name}</option>
+                <option key={structure.key} value={structure.key}>{structure.value}</option>
               ))}
             </select>
             <select
@@ -194,7 +195,7 @@ const TournamentDetails = ({
             >
               <option value="">Select a status</option>
               {statuses.map((status) => (
-                <option key={status.id} value={status.id}>{status.name}</option>
+                <option key={status.key} value={status.key}>{status.value}</option>
               ))}
             </select>
             <button
@@ -227,11 +228,11 @@ const TournamentDetails = ({
               </div>
               <div>
                 <p className="text-green-400 text-lg font-semibold">Structure</p>
-                <p className="text-md font-light">{structures.find(structure => structure.id === tournament.tournament_structure_id)?.name}</p>
+                <p className="text-md font-light">{structures.find(structure => structure.key === tournament.tournament_structure_id)?.value}</p>
               </div>
               <div>
                 <p className="text-green-400 text-lg font-semibold">Status</p>
-                <p className="text-md font-light">{statuses.find(status => status.id === tournament.tournament_status_id)?.name}</p>
+                <p className="text-md font-light">{statuses.find(status => status.key === tournament.tournament_status_id)?.value}</p>
               </div>
             </div>
           </>

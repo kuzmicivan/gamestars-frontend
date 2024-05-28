@@ -8,11 +8,11 @@ const api = axios.create({
 
 export const fetcher = (url: string) => api.get(url).then(res => res.data);
 
-export const fetchTournamentStructures = (): Promise<{ id: number; name: string }[]> => {
+export const fetchTournamentStructures = (): Promise<{ key: number; value: string }[]> => {
   return api.get("/tournament-structures").then(res => res.data);
 };
 
-export const fetchTournamentStatuses = (): Promise<{ id: number; name: string }[]> => {
+export const fetchTournamentStatuses = (): Promise<{ key: number; value: string }[]> => {
   return api.get("/tournament-statuses").then(res => res.data);
 };
 
