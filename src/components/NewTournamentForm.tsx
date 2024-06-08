@@ -1,46 +1,11 @@
-import React, { useState, useEffect } from "react";
-import {
-  fetchTournamentStructures,
-  fetchTournamentStatuses,
-} from "../utils/api";
+import React, { useState } from "react";
 
-const NewTournamentForm = ({ onClose, onCreate }) => {
-  const [name, setName] = useState("");
-  const [prizeFond, setPrizeFond] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [tournamentStructureId, setTournamentStructureId] = useState("");
-  const [tournamentStatusId, setTournamentStatusId] = useState("");
-  const [structures, setStructures] = useState([]);
-  const [statuses, setStatuses] = useState([]);
+const NewTournamentForm = ({ onClose, onCreate, initialData, readOnly }) => {
+  const [name, setName] = useState(initialData?.name || "");
+  const [prizeFond, setPrizeFond] = useState(initialData?.prizeFond || "");
+  const [startDate, setStartDate] = useState(initialData?.startDate || "");
+  const [endDate, setEndDate] = useState(initialData?.endDate || "");
   const [errors, setErrors] = useState([]);
-  const [teams, setTeams] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedStructures = await fetchTournamentStructures();
-      const fetchedStatuses = await fetchTournamentStatuses();
-      setStructures(fetchedStructures);
-      setStatuses(fetchedStatuses);
-    };
-    fetchData();
-  }, []);
-
-  const handleAddTeam = () => {
-    setTeams([...teams, { name: "", description: "" }]);
-  };
-
-  const handleRemoveTeam = (index) => {
-    const newTeams = teams.slice();
-    newTeams.splice(index, 1);
-    setTeams(newTeams);
-  };
-
-  const handleTeamChange = (index, field, value) => {
-    const newTeams = teams.slice();
-    newTeams[index][field] = value;
-    setTeams(newTeams);
-  };
 
   const validateForm = () => {
     const errors = [];
@@ -62,21 +27,6 @@ const NewTournamentForm = ({ onClose, onCreate }) => {
     } else if (new Date(endDate) < new Date(startDate)) {
       errors.push("End date cannot be before start date");
     }
-    if (!tournamentStatusId) {
-      errors.push("Tournament status is required");
-    }
-    if (!tournamentStructureId) {
-      errors.push("Tournament structure is required");
-    }
-
-    teams.forEach((team, index) => {
-      if (!team.name) {
-        errors.push(`Team ${index + 1}: Team name is required`);
-      }
-      if (!team.description) {
-        errors.push(`Team ${index + 1}: Description is required`);
-      }
-    });
 
     return errors;
   };
@@ -86,17 +36,12 @@ const NewTournamentForm = ({ onClose, onCreate }) => {
     const errors = validateForm();
     setErrors(errors);
     if (errors.length === 0) {
-      onCreate(
-        {
-          name,
-          prize_fond: prizeFond,
-          start_date: startDate,
-          end_date: endDate,
-          tournament_structure_id: tournamentStructureId,
-          tournament_status_id: tournamentStatusId,
-        },
-        teams
-      );
+      onCreate({
+        name: name,
+        prize_fond: prizeFond,
+        start_date: startDate,
+        end_date: endDate,
+      });
       onClose();
     }
   };
@@ -121,6 +66,7 @@ const NewTournamentForm = ({ onClose, onCreate }) => {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          readOnly={readOnly}
         />
       </div>
       <div className="mb-4">
@@ -134,6 +80,7 @@ const NewTournamentForm = ({ onClose, onCreate }) => {
           type="number"
           value={prizeFond}
           onChange={(e) => setPrizeFond(e.target.value)}
+          readOnly={readOnly}
         />
       </div>
       <div className="mb-4">
@@ -147,6 +94,7 @@ const NewTournamentForm = ({ onClose, onCreate }) => {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
+          readOnly={readOnly}
         />
       </div>
       <div className="mb-4">
@@ -160,108 +108,17 @@ const NewTournamentForm = ({ onClose, onCreate }) => {
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
+          readOnly={readOnly}
         />
       </div>
-      <div className="mb-4">
-        <label className="block text-gray-300">Tournament Structure</label>
-        <select
-          className="border p-2 w-full bg-gray-700 border-gray-600 text-white outline-green-400"
-          value={tournamentStructureId}
-          onChange={(e) => setTournamentStructureId(e.target.value)}
-        >
-          <option value="">Select a structure</option>
-          {structures.map((structure) => (
-            <option key={structure.key} value={structure.key}>
-              {structure.value}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-300">Tournament Status</label>
-        <select
-          className="border p-2 w-full bg-gray-700 border-gray-600 text-white outline-green-400"
-          value={tournamentStatusId}
-          onChange={(e) => setTournamentStatusId(e.target.value)}
-        >
-          <option value="">Select a status</option>
-          {statuses.map((status) => (
-            <option key={status.key} value={status.key}>
-              {status.value}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="mb-4">
-        <h2 className="text-xl font-bold mb-2 text-gray-300">Teams</h2>
-        {teams.length > 0 && (
-          <div className="h-80 overflow-scroll">
-            {teams.map((team, index) => (
-              <div
-                key={index}
-                className="mb-4 p-4 bg-gray-700 border border-gray-600 rounded"
-              >
-                <div className="mb-2">
-                  <label
-                    className="block text-gray-300"
-                    htmlFor={`team_name_${index}`}
-                  >
-                    Team Name
-                  </label>
-                  <input
-                    id={`team_name_${index}`}
-                    placeholder="Team Name"
-                    className="border p-2 w-full bg-gray-700 border-gray-600 text-white outline-green-400"
-                    type="text"
-                    value={team.name}
-                    onChange={(e) =>
-                      handleTeamChange(index, "name", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="mb-2">
-                  <label
-                    className="block text-gray-300"
-                    htmlFor={`team_description_${index}`}
-                  >
-                    Description
-                  </label>
-                  <input
-                    id={`team_description_${index}`}
-                    placeholder="Description"
-                    className="border p-2 w-full bg-gray-700 border-gray-600 text-white outline-green-400"
-                    type="text"
-                    value={team.description}
-                    onChange={(e) =>
-                      handleTeamChange(index, "description", e.target.value)
-                    }
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTeam(index)}
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Remove Team
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+      {!readOnly && (
         <button
-          type="button"
-          onClick={handleAddTeam}
-          className="bg-transparent w-full border border-green-400 hover:bg-green-400 text-white font-bold py-2 px-4 rounded"
+          className="bg-green-600 w-full hover:bg-green-400 text-white font-bold py-2 px-4 rounded"
+          type="submit"
         >
-          Add Team
+          Create Tournament
         </button>
-      </div>
-      <button
-        className="bg-green-600 w-full hover:bg-green-400 text-white font-bold py-2 px-4 rounded"
-        type="submit"
-      >
-        Create Tournament
-      </button>
+      )}
     </form>
   );
 };

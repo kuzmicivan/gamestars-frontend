@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import React from 'react';
+import Link from "next/link";
+import React from "react";
 
 const Header = () => {
   return (
@@ -8,11 +8,6 @@ const Header = () => {
         <Link href="/" className="text-2xl font-bold">
           GameStars
         </Link>
-        <nav>
-          <Link href="/tournaments" className="ml-4 text-lg text-green-400 hover:text-white">
-            Tournaments
-          </Link>
-        </nav>
       </div>
     </header>
   );
